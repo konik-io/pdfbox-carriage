@@ -18,6 +18,16 @@ Place the ``pdfbox-carriage.jar`` in your classpath next to the Konik library. K
    </dependencies>
 ```
 
+```xml
+   <dependencies>
+       <dependency>
+           <groupId>io.konik</groupId>
+           <artifactId>pdfbox-carriage</artifactId>
+           <version>x.y.z</version>
+       </dependency>
+   </dependencies>
+```
+
 Full documentation
 -------------
 See [konik.io/docs](http://konik.io/docs) for information on how to use Konik or PDFBox-Carriage.
