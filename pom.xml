@@ -7,7 +7,7 @@
    <version>0.0.1</version>
    <name>ZUGFeRD PDFBox carriage</name>
    <inceptionYear>2014</inceptionYear>
-   <description>Addon for the Konik library to attach or extract ZUGFeRD XML Invoices from PDFs with the help of PDFBox</description>
+   <description>Addon for the Konik library allows attaching and extracting XML content to PDFs with the help of PDFBox.</description>
    
    <parent>
       <groupId>io.konik</groupId>
@@ -19,7 +19,7 @@
       <dependency>
          <groupId>io.konik</groupId>
          <artifactId>konik</artifactId>
-         <version>0.6.0-SNAPSHOT</version>
+         <version>0.7.0</version>
       </dependency>
       <dependency>
          <groupId>org.apache.pdfbox</groupId>
