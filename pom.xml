@@ -1,0 +1,68 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <groupId>io.konik.zugferd</groupId>
+   <artifactId>pdfbox-carriage</artifactId>
+   <version>0.0.1</version>
+   <name>ZUGFeRD PDFBox carriage</name>
+   <inceptionYear>2014</inceptionYear>
+   <description>Addon for the Konik library to attach or extract ZUGFeRD XML Invoices from PDFs with the help of PDFBox</description>
+   
+   <parent>
+      <groupId>io.konik</groupId>
+      <artifactId>parent</artifactId>
+      <version>0.6.0-SNAPSHOT</version>
+   </parent>
+
+   <dependencies>
+      <dependency>
+         <groupId>io.konik</groupId>
+         <artifactId>konik</artifactId>
+         <version>0.6.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.pdfbox</groupId>
+         <artifactId>pdfbox</artifactId>
+         <version>1.8.6</version>
+         <scope>compile</scope>
+      </dependency>
+
+      <!-- Optional DI -->
+      <dependency>
+         <groupId>javax.inject</groupId>
+         <artifactId>javax.inject</artifactId>
+         <optional>true</optional>
+      </dependency>
+
+      <!-- TEST dependencies -->
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>com.google.guava</groupId>
+         <artifactId>guava</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.assertj</groupId>
+         <artifactId>assertj-core</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <!-- Benchmarks -->
+      <dependency>
+         <groupId>org.openjdk.jmh</groupId>
+         <artifactId>jmh-core</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.openjdk.jmh</groupId>
+         <artifactId>jmh-generator-annprocess</artifactId>
+         <scope>provided</scope>
+      </dependency>
+   </dependencies>
+
+   
+</project>

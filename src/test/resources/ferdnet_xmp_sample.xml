@@ -1,0 +1,95 @@
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 4.2.1-c043 52.372728, 2009/01/18-15:08:04        ">
+   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
+         <pdf:Producer>intarsys PDF/A Live!</pdf:Producer>
+      </rdf:Description>
+      <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/">
+         <xmp:ModifyDate>2013-11-18T12:14:15+01:00</xmp:ModifyDate>
+         <xmp:CreateDate>2013-11-18T10:59:52+01:00</xmp:CreateDate>
+         <xmp:CreatorTool>intarsys ZUGFeRD Toolkit 1.0</xmp:CreatorTool>
+         <xmp:MetadataDate>2013-11-18T12:14:15+01:00</xmp:MetadataDate>
+      </rdf:Description>
+      <rdf:Description rdf:about="" xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/" xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#">
+         <xmpMM:DocumentID>uuid:b7976887-8854-11ee-0000-d9c7a91ee64f</xmpMM:DocumentID>
+         <xmpMM:VersionID>0</xmpMM:VersionID>
+         <xmpMM:InstanceID>uuid:159d567a-b722-4c7f-929a-557247144133</xmpMM:InstanceID>
+         <xmpMM:History>
+            <rdf:Seq>
+               <rdf:li rdf:parseType="Resource">
+                  <rdf:value rdf:parseType="Resource">
+                     <stEvt:action>edited</stEvt:action>
+                     <stEvt:softwareAgent>CABAReT Stage</stEvt:softwareAgent>
+                     <stEvt:parameters>XMP by CABAReT Stage</stEvt:parameters>
+                     <stEvt:when>2013-11-18T11:00:21+01:00</stEvt:when>
+                  </rdf:value>
+                  <rdf:type>http://ns.adobe.com/xap/1.0/sType/Version#:event</rdf:type>
+               </rdf:li>
+            </rdf:Seq>
+         </xmpMM:History>
+      </rdf:Description>
+      <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">
+         <dc:format>application/pdf</dc:format>
+         <dc:title>
+            <rdf:Alt>
+               <rdf:li xml:lang="x-default">(Beispielrechnung_ZUGFeRD_RC_COMFORT.xlsx)</rdf:li>
+            </rdf:Alt>
+         </dc:title>
+         <dc:creator>
+            <rdf:Seq>
+               <rdf:li>(Dr. Bernd Wild)</rdf:li>
+            </rdf:Seq>
+         </dc:creator>
+      </rdf:Description>
+      <rdf:Description rdf:about="" xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/">
+         <pdfaid:conformance>B</pdfaid:conformance>
+         <pdfaid:part>3</pdfaid:part>
+      </rdf:Description>
+      <rdf:Description rdf:about="" xmlns:zf="urn:ferd:pdfa:invoice:rc#">
+         <zf:ConformanceLevel>BASIC</zf:ConformanceLevel>
+         <zf:DocumentFileName>ZUGFeRD-invoice.xml</zf:DocumentFileName>
+         <zf:DocumentType>INVOICE</zf:DocumentType>
+         <zf:Version>RC</zf:Version>
+      </rdf:Description>
+      <rdf:Description rdf:about="" xmlns:pdfaExtension="http://www.aiim.org/pdfa/ns/extension/"
+         xmlns:pdfaSchema="http://www.aiim.org/pdfa/ns/schema#" xmlns:pdfaProperty="http://www.aiim.org/pdfa/ns/property#">
+         <pdfaExtension:schemas>
+            <rdf:Bag>
+               <rdf:li rdf:parseType="Resource">
+                  <pdfaSchema:schema>ZUGFeRD PDFA Extension Schema</pdfaSchema:schema>
+                  <pdfaSchema:namespaceURI>urn:ferd:pdfa:invoice:rc#</pdfaSchema:namespaceURI>
+                  <pdfaSchema:prefix>zf</pdfaSchema:prefix>
+                  <pdfaSchema:property>
+                     <rdf:Seq>
+                        <rdf:li rdf:parseType="Resource">
+                           <pdfaProperty:name>DocumentFileName</pdfaProperty:name>
+                           <pdfaProperty:valueType>Text</pdfaProperty:valueType>
+                           <pdfaProperty:category>external</pdfaProperty:category>
+                           <pdfaProperty:description>name of the embedded XML invoice file</pdfaProperty:description>
+                        </rdf:li>
+                        <rdf:li rdf:parseType="Resource">
+                           <pdfaProperty:name>DocumentType</pdfaProperty:name>
+                           <pdfaProperty:valueType>Text</pdfaProperty:valueType>
+                           <pdfaProperty:category>external</pdfaProperty:category>
+                           <pdfaProperty:description>INVOICE</pdfaProperty:description>
+                        </rdf:li>
+                        <rdf:li rdf:parseType="Resource">
+                           <pdfaProperty:name>Version</pdfaProperty:name>
+                           <pdfaProperty:valueType>Text</pdfaProperty:valueType>
+                           <pdfaProperty:category>external</pdfaProperty:category>
+                           <pdfaProperty:description>The actual version of the ZUGFeRD data</pdfaProperty:description>
+                        </rdf:li>
+                        <rdf:li rdf:parseType="Resource">
+                           <pdfaProperty:name>ConformanceLevel</pdfaProperty:name>
+                           <pdfaProperty:valueType>Text</pdfaProperty:valueType>
+                           <pdfaProperty:category>external</pdfaProperty:category>
+                           <pdfaProperty:description>The conformance level of the ZUGFeRD data
+                           </pdfaProperty:description>
+                        </rdf:li>
+                     </rdf:Seq>
+                  </pdfaSchema:property>
+               </rdf:li>
+            </rdf:Bag>
+         </pdfaExtension:schemas>
+      </rdf:Description>
+   </rdf:RDF>
+</x:xmpmeta>
