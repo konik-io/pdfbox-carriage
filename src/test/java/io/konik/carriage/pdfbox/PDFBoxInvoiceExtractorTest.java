@@ -76,4 +76,15 @@ public class PDFBoxInvoiceExtractorTest {
       invoiceExtractor.extract(pdfStream);
    }
 
+   
+   @Test
+   public void extractInputStream_noZfFile() {
+      try {
+         InputStream pdfStream = getClass().getResourceAsStream("/PDFA3FileAttachment.pdf");
+         invoiceExtractor.extract(pdfStream);
+      }
+      catch(InvoiceExtractionError e) {
+         assertThat(e.getMessage()).startsWith(PDFBoxInvoiceExtractor.NO_ZF_FILE);
+      }
+   }
 }
