@@ -6,7 +6,8 @@ Addon for the Konik library allows attaching and extracting XML content to PDFs 
 
 Quick Start
 -----------
-Place the ``pdfbox-carriage.jar`` in your classpath next to the Konik library. Konik will search the classpath for existing PDF addons and use PDFBox.
+Place the ``pdfbox-carriage.jar`` next to Konik in your classpath. Konik will discover any existing PDF-Carriages and use it.
+make sure there is only one PDF-Carriage in your classpath.
 
 ```xml
    <dependencies>
@@ -16,9 +17,7 @@ Place the ``pdfbox-carriage.jar`` in your classpath next to the Konik library. K
            <version>x.y.z</version>
        </dependency>
    </dependencies>
-```
 
-```xml
    <dependencies>
        <dependency>
            <groupId>io.konik</groupId>
