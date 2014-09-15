@@ -19,22 +19,25 @@
 package io.konik.carriage.pdfbox;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import io.konik.carriage.pdfbox.PDFBoxInvoiceExtractor;
-import io.konik.harness.InvoiceExtractionError;
-import io.konik.zugferd.Invoice;
+import io.konik.harness.FileExtractor;
+import io.konik.harness.exception.InvoiceExtractionError;
 
-import java.io.DataInputStream;
 import java.io.InputStream;
-import java.net.URL;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
+import org.apache.pdfbox.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 @SuppressWarnings("javadoc")
 public class PDFBoxInvoiceExtractorTest {
 
+   private static final String PDFA3_FILE_ATTACHMENT = "/PDFA3FileAttachment.pdf";
+   private static final String ACME_INVOICE_42 = "/acme_invoice-42.pdf";
    private static final String PDF_INVOICE_LOCATION = "/Musterrechnung_Einfach.pdf";
-   PDFBoxInvoiceExtractor invoiceExtractor;
+  
+   FileExtractor invoiceExtractor;
 
    @Before
    public void setup() {
@@ -42,49 +45,48 @@ public class PDFBoxInvoiceExtractorTest {
    }
 
    @Test
-   public void extractByteArray() throws Exception {
-      //setup
-      URL resource = getClass().getResource(PDF_INVOICE_LOCATION);
-      byte[] pdf = new byte[resource.openConnection().getContentLength()];
-      DataInputStream dataIs = new DataInputStream(resource.openStream());
-      dataIs.readFully(pdf);
-
-      //exec
-      Invoice invoice = invoiceExtractor.extract(pdf);
-
-      //validate
-      assertThat(invoice).isNotNull();
-      assertThat(invoice.getHeader().getInvoiceNumber()).isEqualTo("471102");
-   }
-
-   @Test
-   public void extractInputStream() {
+   public void extract() throws UnsupportedEncodingException {
       //setup
       InputStream pdfStream = getClass().getResourceAsStream(PDF_INVOICE_LOCATION);
 
       //exec
-      Invoice invoice = invoiceExtractor.extract(pdfStream);
+      byte[] invoice = invoiceExtractor.extract(pdfStream);
 
       //very
       assertThat(invoice).isNotNull();
-      assertThat(invoice.getHeader().getInvoiceNumber()).isEqualTo("471102");
+      assertThat(new String(invoice,"UTF-8")).containsOnlyOnce("<ram:ID>471102</ram:ID>");
    }
 
    @Test(expected = InvoiceExtractionError.class)
    public void extractInputStream_Fail() {
-      InputStream pdfStream = getClass().getResourceAsStream("/acme_invoice-42.pdf");
+      InputStream pdfStream = getClass().getResourceAsStream(ACME_INVOICE_42);
       invoiceExtractor.extract(pdfStream);
    }
 
    
    @Test
-   public void extractInputStream_noZfFile() {
+   public void extract_noZfFile() {
       try {
-         InputStream pdfStream = getClass().getResourceAsStream("/PDFA3FileAttachment.pdf");
+         InputStream pdfStream = getClass().getResourceAsStream(PDFA3_FILE_ATTACHMENT);
          invoiceExtractor.extract(pdfStream);
       }
       catch(InvoiceExtractionError e) {
          assertThat(e.getMessage()).startsWith(PDFBoxInvoiceExtractor.NO_ZF_FILE);
       }
+   }
+
+   @Test
+   public void extractToStream() throws Exception {
+    //setup
+      InputStream pdfStream = getClass().getResourceAsStream(PDF_INVOICE_LOCATION);
+      
+      //exec
+      InputStream inputStream = invoiceExtractor.extractToStream(pdfStream);
+      String invoice = new String(IOUtils.toByteArray(inputStream),"UTF-8");
+      
+      assertThat(inputStream).isNotNull();
+      assertThat(invoice).containsOnlyOnce("<ram:ID>471102</ram:ID>");
+      assertThat(invoice).containsOnlyOnce("</rsm:CrossIndustryDocument>");
+      inputStream.close();
    }
 }

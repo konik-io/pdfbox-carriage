@@ -18,19 +18,15 @@
  */
 package io.konik.carriage.pdfbox;
 
-import static com.google.common.io.ByteStreams.toByteArray;
-import static org.assertj.core.api.Assertions.assertThat;
-import io.konik.InvoiceTransformer;
-import io.konik.harness.InvoiceAppender;
-import io.konik.zugferd.Invoice;
+import io.konik.harness.AppendParameter;
+import io.konik.harness.appender.DefaultAppendParameter;
 
-import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.io.Files;
 
 @SuppressWarnings("javadoc")
 public class PDFBoxInvoiceAppenderTest {
@@ -38,46 +34,20 @@ public class PDFBoxInvoiceAppenderTest {
    private static final String MUSTERRECHNUNG_EINFACH_XML = "/Musterrechnung_Einfach.xml";
    private static final String ACME_INVOICE_42_PDF = "/acme_invoice-42.pdf";
    
-   private static final String TARGET_ACME_INVOICE_42_PDF = "target/acme_invoice-42.pdf";
-   private static final String TARGET_ACME_INVOICE_42_RANDOM_PDF = "target/acme_invoice-42_random.pdf";
-   
-   InvoiceAppender appender;
-   InputStream isPdf;
-   InputStream isXml;
-   InvoiceTransformer transformer = new InvoiceTransformer();
+   PDFBoxInvoiceAppender appender;
 
    @Before
    public void setUp() throws Exception {
       appender = new PDFBoxInvoiceAppender();
-      isPdf = getClass().getResourceAsStream(ACME_INVOICE_42_PDF);
-      isXml = getClass().getResourceAsStream(MUSTERRECHNUNG_EINFACH_XML);
    }
 
    @Test
    public void appendInputStream() throws Exception {
-      Invoice invoice = transformer.toModel(isXml);
-      byte[] pdfInput = toByteArray(isPdf);
-      byte[] outPdf = appender.append(invoice, pdfInput);
-      assertThat(outPdf).isNotNull();
-
-      Files.write(outPdf , new File(TARGET_ACME_INVOICE_42_PDF));
-   }
-
-   @Test
-   public void appendInputStream_random() throws Exception {
-      Invoice invoice = transformer.toModel(isXml);
-      byte[] pdfInput = toByteArray(isPdf);
-      byte[] outPdf = appender.append(invoice, pdfInput);
-      assertThat(outPdf).isNotNull();
-
-      Files.write(outPdf , new File(TARGET_ACME_INVOICE_42_RANDOM_PDF));
-   }
-   
-   @Test
-   public void appendByteArray() throws Exception {
-      Invoice invoice = transformer.toModel(isXml);
-      byte[] outPdf = appender.append(invoice, toByteArray(isPdf));
-      assertThat(outPdf).isNotNull();
+      InputStream isPdf = getClass().getResourceAsStream(ACME_INVOICE_42_PDF);
+      InputStream isXml = getClass().getResourceAsStream(MUSTERRECHNUNG_EINFACH_XML);
+      FileOutputStream outputPdf = new FileOutputStream("target/acme_invoice-42_zf.pdf");
+      AppendParameter appendParameter = new DefaultAppendParameter(isPdf, isXml,outputPdf,"1.0","BASIC");
+      appender.append(appendParameter);
    }
    
 }

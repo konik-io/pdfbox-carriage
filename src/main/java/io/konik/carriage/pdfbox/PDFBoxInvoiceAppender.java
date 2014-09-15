@@ -18,48 +18,97 @@
  */
 package io.konik.carriage.pdfbox;
 
+import static java.util.Collections.singletonMap;
+import io.konik.carriage.utils.ByteCountingInputStream;
+import io.konik.harness.AppendParameter;
+import io.konik.harness.FileAppender;
 
-import io.konik.harness.InvoiceAppender;
-import io.konik.zugferd.Invoice;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.Calendar;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.apache.pdfbox.cos.COSArray;
+import org.apache.pdfbox.cos.COSDictionary;
+import org.apache.pdfbox.exceptions.COSVisitorException;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
+import org.apache.pdfbox.pdmodel.PDDocumentNameDictionary;
+import org.apache.pdfbox.pdmodel.PDEmbeddedFilesNameTreeNode;
+import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecification;
+import org.apache.pdfbox.pdmodel.common.filespecification.PDEmbeddedFile;
 
 /**
- * The Class PDFBox PDF Invoice Appender.
+ *  ZUGFeRD PDFBox Invoice Appender.
  */
 @Named
 @Singleton
-public class PDFBoxInvoiceAppender implements InvoiceAppender {
+public class PDFBoxInvoiceAppender implements FileAppender {
 
-   private static final String INVOICE = "INVOICE";
-
+   private static final String MIME_TYPE = "text/xml";
    private static final String ZF_FILE_NAME = "ZUGFeRD-invoice.xml";
 
+   Calendar now = Calendar.getInstance();
+
    @Override
-   public byte[] append(final Invoice invoice, final byte[] pdf) {
-      ByteArrayInputStream isPdf = new ByteArrayInputStream(pdf);
-      ByteArrayOutputStream osPdf = new ByteArrayOutputStream(pdf.length);
-
-      append(invoice, isPdf, osPdf);
-
-      return osPdf.toByteArray();
+   public void append(AppendParameter appendParameter) {
+      InputStream inputPdf = appendParameter.inputPdf();
+      try {
+         PDDocument doc = PDDocument.load(inputPdf);
+         attachZugferdFile(doc, appendParameter.attachmentFile());
+         doc.save(appendParameter.resultingPdf());
+         doc.close();
+      } catch (IOException e) {
+         e.printStackTrace();
+      } catch (COSVisitorException e) {
+         e.printStackTrace();
+      }
    }
 
-  
-   @Override
-   public void append(final Invoice invoice, InputStream inputPdf, OutputStream resultingPdf) {
+   private void attachZugferdFile(PDDocument doc, InputStream zugferdFile) throws IOException {
+      PDEmbeddedFilesNameTreeNode fileNameTreeNode = new PDEmbeddedFilesNameTreeNode();
+
+      PDEmbeddedFile embeddedFile = createEmbeddedFile(doc, zugferdFile);
+      PDComplexFileSpecification fileSpecification = createFileSpecification(embeddedFile);
+
+      COSDictionary dict = fileSpecification.getCOSDictionary();
+      dict.setName("AFRelationship", "Alternative");
+      dict.setString("UF", ZF_FILE_NAME);
+
+      fileNameTreeNode.setNames(singletonMap(ZF_FILE_NAME, fileSpecification));
+
+      setNamesDictionary(doc, fileNameTreeNode);
+
+      COSArray cosArray = new COSArray();
+      cosArray.add(fileSpecification);
+      doc.getDocumentCatalog().getCOSDictionary().setItem("AF", cosArray);
    }
 
 
-   @Override
-   public byte[] append(Invoice invoice, InputStream inputStreamPdf) {
-      return null;
+
+   private static PDComplexFileSpecification createFileSpecification(PDEmbeddedFile embeddedFile) {
+      PDComplexFileSpecification fileSpecification = new PDComplexFileSpecification();
+      fileSpecification.setFile(ZF_FILE_NAME);
+      fileSpecification.setEmbeddedFile(embeddedFile);
+      return fileSpecification;
+   }
+
+   private PDEmbeddedFile createEmbeddedFile(PDDocument doc, InputStream zugferdFile) throws IOException {
+      ByteCountingInputStream countingIs = new ByteCountingInputStream(zugferdFile);
+      PDEmbeddedFile embeddedFile = new PDEmbeddedFile(doc, countingIs);
+      embeddedFile.setSubtype(MIME_TYPE);
+      embeddedFile.setSize(countingIs.getByteCount());
+      embeddedFile.setCreationDate(now);
+      embeddedFile.setModDate(now);
+      return embeddedFile;
+   }
+   
+   private static void setNamesDictionary(PDDocument doc, PDEmbeddedFilesNameTreeNode fileNameTreeNode) {
+      PDDocumentCatalog documentCatalog = doc.getDocumentCatalog();
+      PDDocumentNameDictionary namesDictionary = new PDDocumentNameDictionary(documentCatalog);
+      namesDictionary.setEmbeddedFiles(fileNameTreeNode);
+      documentCatalog.setNames(namesDictionary);
    }
 }

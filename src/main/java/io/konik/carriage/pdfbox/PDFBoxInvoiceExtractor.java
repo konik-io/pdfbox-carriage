@@ -17,76 +17,75 @@
  */
 package io.konik.carriage.pdfbox;
 
-import io.konik.InvoiceTransformer;
-import io.konik.harness.InvoiceExtractionError;
-import io.konik.harness.InvoiceExtractor;
-import io.konik.zugferd.Invoice;
+import io.konik.carriage.utils.CallBackInputStream;
+import io.konik.harness.FileExtractor;
+import io.konik.harness.exception.InvoiceExtractionError;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
+import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentNameDictionary;
 import org.apache.pdfbox.pdmodel.PDEmbeddedFilesNameTreeNode;
 import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecification;
-import org.apache.pdfbox.pdmodel.common.filespecification.PDEmbeddedFile;
 
 /**
  * The PDFBoxInvoice Extractor.
  */
-public class PDFBoxInvoiceExtractor implements InvoiceExtractor {
+public class PDFBoxInvoiceExtractor implements FileExtractor {
 
    static final String NO_FILE = "Provided PDF does not contain embedded files.";
-   static final String NO_ZF_FILE = "PDF does not contain expected embedded file named ";
+   static final String NO_ZF_FILE = "The PDF does not contain an attached file named ZUGFeRD-invoice.xml. Error in: ";
    static final String ZF_FILE_NAME = "ZUGFeRD-invoice.xml";
 
-   InvoiceTransformer invoiceTransformer = new InvoiceTransformer();
-
    @Override
-   public Invoice extract(byte[] pdfIn) {
-      ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(pdfIn);
-      return extract(byteArrayInputStream);
-   }
-
-   @Override
-   public Invoice extract(InputStream pdfStream) {
+   public byte[] extract(InputStream pdfInput) {
+      InputStream attachmentFile = null;
       try {
-         return extractInvoiceFromPdfStream(pdfStream);
+         attachmentFile = extractToStream(pdfInput);
+         return IOUtils.toByteArray(attachmentFile);
       } catch (IOException e) {
-         throw new InvoiceExtractionError("Error extracting content from PDF: " + e.getMessage());
-      }
-   }
-
-   private Invoice extractInvoiceFromPdfStream(InputStream pdfStream) throws IOException {
-      PDDocument doc = PDDocument.load(pdfStream);
-      try {
-         return extractInvoiceFormPdf(doc);
+         throw new InvoiceExtractionError("Error extracting content from PDF",e);
       }finally {
-         doc.close();
+         IOUtils.closeQuietly(attachmentFile);
       }
    }
-
-   private Invoice extractInvoiceFormPdf(PDDocument doc) throws IOException {
+   
+   @Override
+   public InputStream extractToStream(InputStream pdfInput) {
+      try {
+         return extractIntern(pdfInput);
+      } catch (IOException e) {
+         throw new InvoiceExtractionError("Error extracting content from PDF",e);
+      }
+   }
+   
+   private static final InputStream extractIntern(InputStream pdfStream) throws IOException {
+      PDDocument doc = PDDocument.load(pdfStream);
+      InputStream inputStream = extractZugferdFileAttachment(doc);
+      return new CallBackInputStream(inputStream, doc);
+   }
+   
+   private static final InputStream extractZugferdFileAttachment(PDDocument doc) throws IOException {
       PDDocumentNameDictionary nameDictionary = new PDDocumentNameDictionary(doc.getDocumentCatalog());
-      PDEmbeddedFilesNameTreeNode embeddedFiles = getEmbeddedFiles(nameDictionary);
-      PDEmbeddedFile embeddedFile = extractZugferdInvocieFile(embeddedFiles);
-      InputStream xmlInvoiceStream = embeddedFile.createInputStream();
-      Invoice invoice = invoiceTransformer.toModel(xmlInvoiceStream);
-      return invoice;
+      PDEmbeddedFilesNameTreeNode embeddedFiles = listEmbeddedFiles(nameDictionary);
+      return extractZugferdXmlAttachment(embeddedFiles);
    }
 
-   private static PDEmbeddedFilesNameTreeNode getEmbeddedFiles(PDDocumentNameDictionary names) {
+   private static final PDEmbeddedFilesNameTreeNode listEmbeddedFiles(PDDocumentNameDictionary names) {
       PDEmbeddedFilesNameTreeNode embeddedFiles = names.getEmbeddedFiles();
       if (embeddedFiles == null) { throw new InvoiceExtractionError(NO_FILE); }
       return embeddedFiles;
    }
    
-   private static PDEmbeddedFile extractZugferdInvocieFile(PDEmbeddedFilesNameTreeNode embeddedFiles)
+   private static final InputStream extractZugferdXmlAttachment(PDEmbeddedFilesNameTreeNode embeddedFiles)
          throws IOException {
       PDComplexFileSpecification fileSpec = (PDComplexFileSpecification) embeddedFiles.getValue(ZF_FILE_NAME);
       if (fileSpec == null) { throw new InvoiceExtractionError(NO_ZF_FILE + ZF_FILE_NAME); }
-      PDEmbeddedFile embeddedFile = fileSpec.getEmbeddedFile();
-      return embeddedFile;
+      return fileSpec.getEmbeddedFile().createInputStream();
    }
+
+
 }
