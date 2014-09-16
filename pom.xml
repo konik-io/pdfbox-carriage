@@ -2,7 +2,7 @@
    <modelVersion>4.0.0</modelVersion>
 
    <artifactId>pdfbox-carriage</artifactId>
-   <version>0.8.0</version>
+   <version>0.8.1-SNAPSHOT</version>
 
    <parent>
       <groupId>io.konik</groupId>
