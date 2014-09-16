@@ -4,9 +4,10 @@
 
    <artifactId>pdfbox-carriage</artifactId>
    <version>0.8.0-SNAPSHOT</version>
-   <name>ZUGFeRD PDFBox carriage</name>
+   
+   <name>PDFBox Carriage</name>
    <inceptionYear>2014</inceptionYear>
-   <description>Addon for the Konik library allows attaching and extracting XML content to PDFs with the help of PDFBox.</description>
+  <description>Allows Konik to use PDFBox for attaching and detaching invoices to PDFs</description>
 
    <parent>
       <groupId>io.konik</groupId>
