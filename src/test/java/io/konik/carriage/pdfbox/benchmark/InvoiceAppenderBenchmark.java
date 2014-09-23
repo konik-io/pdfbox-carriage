@@ -24,14 +24,19 @@ import static org.openjdk.jmh.annotations.Mode.Throughput;
 import static org.openjdk.jmh.annotations.Scope.Thread;
 import io.konik.carriage.pdfbox.PDFBoxInvoiceAppender;
 import io.konik.harness.FileAppender;
+import io.konik.harness.appender.DefaultAppendParameter;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.junit.Test;
+import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.runner.RunnerException;
 
 @SuppressWarnings("javadoc")
@@ -40,35 +45,27 @@ import org.openjdk.jmh.runner.RunnerException;
 @OutputTimeUnit(SECONDS)
 public class InvoiceAppenderBenchmark extends DefaultBenchmark {
 
-  
-//   private final InvoiceTransformer transformer = new InvoiceTransformer();
    private final FileAppender appender = new PDFBoxInvoiceAppender();
-   private byte[] pdf;
    
 
    @Setup
-   public void setup() throws IOException {
-     pdf = toByteArray(getClass().getResourceAsStream("/acme_invoice-42.pdf"));
+   public void setup() {
    }
 
-//   @Benchmark
-//   public void append_witStreams() throws Exception {
-//      Invoice invoice = transformer.toModel(getClass().getResourceAsStream("/ZUGFeRD-invoice.xml"));
-//      appender.append(invoice, getClass().getResourceAsStream("/acme_invoice-42.pdf"), new ByteArrayOutputStream());
-//   }
-//   
-//   @Benchmark
-//   @Threads(4)
-//   public void append_witStreamsAndThreads() throws Exception {
-//      Invoice invoice = transformer.toModel(getClass().getResourceAsStream("/ZUGFeRD-invoice.xml"));
-//      appender.append(invoice, getClass().getResourceAsStream("/acme_invoice-42.pdf"), new ByteArrayOutputStream());
-//   }
-//   
-//   @Benchmark
-//   public void append_withByteArray() throws Exception {
-//      Invoice invoice = transformer.toModel(getClass().getResourceAsStream("/ZUGFeRD-invoice.xml"));
-//      appender.append(invoice, pdf);
-//   }
+   @Benchmark
+   public void append() throws Exception {
+      InputStream xmlIs = getClass().getResourceAsStream("/Musterrechnung_Einfach.xml");
+      InputStream pdfIn = getClass().getResourceAsStream("/acme_invoice-42.pdf");
+      appender.append(new DefaultAppendParameter(pdfIn, xmlIs, new ByteArrayOutputStream(), "1.0", "TEST"));
+   }
+   
+   @Benchmark
+   @Threads(4)
+   public void append_witAndThreads() throws Exception {
+      InputStream xmlIs = getClass().getResourceAsStream("/Musterrechnung_Einfach.xml");
+      InputStream pdfIn = getClass().getResourceAsStream("/acme_invoice-42.pdf");
+      appender.append(new DefaultAppendParameter(pdfIn, xmlIs, new ByteArrayOutputStream(), "1.0", "TEST"));
+   }
    
    @Test
    public void benchmark_iTextPdfInvoiceAppender() throws RunnerException {

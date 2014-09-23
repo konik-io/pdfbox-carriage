@@ -49,5 +49,5 @@ public class PDFBoxInvoiceAppenderTest {
       AppendParameter appendParameter = new DefaultAppendParameter(isPdf, isXml,outputPdf,"1.0","BASIC");
       appender.append(appendParameter);
    }
-   
+
 }

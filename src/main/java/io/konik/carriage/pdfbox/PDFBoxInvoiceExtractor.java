@@ -23,7 +23,6 @@ import io.konik.harness.exception.InvoiceExtractionError;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
