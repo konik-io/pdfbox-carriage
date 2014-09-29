@@ -90,7 +90,7 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       InputStream inputPdf = appendParameter.inputPdf();
       try {
          PDDocument doc = PDDocument.load(inputPdf);
-         setXmp(doc, appendParameter);
+         setMetadata(doc, appendParameter);
          attachZugferdFile(doc, appendParameter.attachmentFile());
          doc.getDocument().setVersion(1.7f);
          doc.save(appendParameter.resultingPdf());
@@ -145,13 +145,14 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       documentCatalog.setNames(namesDictionary);
    }
 
-   private PDDocumentCatalog setXmp(PDDocument doc, AppendParameter appendParameter) throws IOException,
+   private void setMetadata(PDDocument doc, AppendParameter appendParameter) throws IOException,
          TransformerException, BadFieldValueException, XmpSerializationException {
       Calendar now = Calendar.getInstance();
       PDDocumentCatalog catalog = doc.getDocumentCatalog();
+      
       PDMetadata metadata = new PDMetadata(doc);
       catalog.setMetadata(metadata);
-
+      
       XMPMetadata xmp = XMPMetadata.createXMPMetadata();
       PDFAIdentificationSchema pdfaid = new PDFAIdentificationSchema(xmp);
       pdfaid.setPart(3);
@@ -159,7 +160,7 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       xmp.addSchema(pdfaid);
 
       DublinCoreSchema dublicCore = new DublinCoreSchema(xmp);
-      // dublicCore.addCreator(creator);
+      // dublicCore.addCreator(getAuthor());
       xmp.addSchema(dublicCore);
 
       XMPBasicSchema basicSchema = new XMPBasicSchema(xmp);
@@ -167,10 +168,10 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       basicSchema.setCreateDate(now);
       xmp.addSchema(basicSchema);
 
-      PDDocumentInformation pdi = new PDDocumentInformation();
+      PDDocumentInformation pdi = doc.getDocumentInformation();
       pdi.setModificationDate(now);
       pdi.setProducer(PRODUCER);
-      pdi.setAuthor(System.getProperty("user.name"));
+      pdi.setAuthor(getAuthor());
       doc.setDocumentInformation(pdi);
 
       AdobePDFSchema pdf = new AdobePDFSchema(xmp);
@@ -188,7 +189,10 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       xmp.addSchema(zf);
 
       new XmpSerializer().serialize(xmp, metadata.createOutputStream(), true);
-      return catalog;
+   }
+
+   private static String getAuthor() {
+      return System.getProperty("user.name");
    }
 
 }
