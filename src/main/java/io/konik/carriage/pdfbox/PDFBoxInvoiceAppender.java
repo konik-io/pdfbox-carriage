@@ -17,7 +17,6 @@
  */
 package io.konik.carriage.pdfbox;
 
-import static java.lang.Integer.valueOf;
 import static java.util.Collections.singletonMap;
 import io.konik.carriage.pdfbox.xmp.XMPSchemaZugferd1p0;
 import io.konik.carriage.utils.ByteCountingInputStream;
@@ -156,12 +155,11 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       
       XMPMetadata xmp = XMPMetadata.createXMPMetadata();
       PDFAIdentificationSchema pdfaid = new PDFAIdentificationSchema(xmp);
-      pdfaid.setPart(valueOf(3));
+      pdfaid.setPart(Integer.valueOf(3)); 
       pdfaid.setConformance("B");
       xmp.addSchema(pdfaid);
 
       DublinCoreSchema dublicCore = new DublinCoreSchema(xmp);
-      // dublicCore.addCreator(getAuthor());
       xmp.addSchema(dublicCore);
 
       XMPBasicSchema basicSchema = new XMPBasicSchema(xmp);
