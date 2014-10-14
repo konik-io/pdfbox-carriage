@@ -24,6 +24,9 @@ import io.konik.harness.exception.InvoiceExtractionError;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentNameDictionary;
@@ -33,6 +36,8 @@ import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecifica
 /**
  * The PDFBoxInvoice Extractor.
  */
+@Named
+@Singleton
 public class PDFBoxInvoiceExtractor implements FileExtractor {
 
    static final String NO_FILE = "Provided PDF does not contain embedded files.";
