@@ -18,6 +18,7 @@
 package io.konik.carriage.pdfbox;
 
 import static java.util.Collections.singletonMap;
+import io.konik.carriage.pdfbox.converter.PDFAConverter;
 import io.konik.carriage.pdfbox.xmp.XMPSchemaZugferd1p0;
 import io.konik.carriage.utils.ByteCountingInputStream;
 import io.konik.harness.AppendParameter;
@@ -27,13 +28,17 @@ import io.konik.harness.exception.InvoiceAppendError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Scanner;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.xml.transform.TransformerException;
 
 import org.apache.pdfbox.cos.COSArray;
+import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSDictionary;
+import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -43,6 +48,7 @@ import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecification;
 import org.apache.pdfbox.pdmodel.common.filespecification.PDEmbeddedFile;
 import org.apache.pdfbox.pdmodel.documentinterchange.logicalstructure.PDMarkInfo;
+import org.apache.pdfbox.pdmodel.graphics.color.PDOutputIntent;
 import org.apache.xmpbox.XMPMetadata;
 import org.apache.xmpbox.schema.AdobePDFSchema;
 import org.apache.xmpbox.schema.DublinCoreSchema;
@@ -61,7 +67,7 @@ import org.apache.xmpbox.xml.XmpSerializer;
  */
 @Named
 @Singleton
-public class PDFBoxInvoiceAppender implements FileAppender {
+public class PDFBoxInvoiceAppender implements FileAppender, PDFAConverter{
 
    private static final String PRODUCER = "Konik PDFBox-Carriage";
    private static final String MIME_TYPE = "text/xml";
@@ -90,21 +96,63 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       InputStream inputPdf = appendParameter.inputPdf();
       try {
          PDDocument doc = PDDocument.load(inputPdf);
+         checkisInputPdfA(doc);
+         convertToPdfA3(doc);
+         setOutputIntent(doc);         
          setMetadata(doc, appendParameter);
          attachZugferdFile(doc, appendParameter.attachmentFile());
          doc.getDocument().setVersion(1.7f);
          doc.save(appendParameter.resultingPdf());
          doc.close();
       } catch (Exception e) {
-         throw new InvoiceAppendError("Error appending Invoice", e);
+         throw new InvoiceAppendError("Error appending Invoice the input Strem is: " + inputPdf, e);
       }
 
+   }
+
+   protected void convertToPdfA3(PDDocument doc) {
+    if (!isConvertToPdfa3()) return; 
+      
+   }
+
+   private void setOutputIntent(PDDocument doc) throws Exception {  
+      PDDocumentCatalog documentCatalog = doc.getDocumentCatalog();
+      COSBase item = documentCatalog.getCOSDictionary().getItem(COSName.OUTPUT_INTENTS);
+      List<PDOutputIntent> outputIntents = doc.getDocumentCatalog().getOutputIntent();
+      InputStream colorProfile = getClass().getResourceAsStream("/sRGB Color Space Profile.icm");
+      PDOutputIntent oi = new PDOutputIntent(doc, colorProfile);
+      oi.setInfo("sRGB IEC61966-2.1");
+      oi.setOutputCondition("sRGB IEC61966-2.1");
+      oi.setOutputConditionIdentifier("sRGB IEC61966-2.1");
+      oi.setRegistryName("http://www.color.org");
+      doc.getDocumentCatalog().addOutputIntent(oi);
+   }
+   
+   private static boolean isConvertToPdfa3() {
+      String convert = System.getProperty("io.konik.carriage.convertToPdfA");
+      return Boolean.parseBoolean(convert);
+   }
+
+   private static void checkisInputPdfA(PDDocument doc) {
+      PDMetadata metadata = doc.getDocumentCatalog().getMetadata();
+      try {
+         InputStream inputStream = metadata.createInputStream();
+         Scanner streamScanner = new Scanner(inputStream);
+         String found = streamScanner.findWithinHorizon("http://www.aiim.org/pdfa/ns/id", 0);
+         streamScanner.close();
+         if (found==null && !isConvertToPdfa3()  ) {
+            throw new InvoiceAppendError("The provided PDF is not of type PDF/A. Contact support for a PDF to PDF/A conversation");
+         }
+      } catch (IOException e) {
+         throw new InvoiceAppendError("Could not read PDF Metadata",e);
+      }
    }
 
    private static void attachZugferdFile(PDDocument doc, InputStream zugferdFile) throws IOException {
       PDEmbeddedFilesNameTreeNode fileNameTreeNode = new PDEmbeddedFilesNameTreeNode();
 
       PDEmbeddedFile embeddedFile = createEmbeddedFile(doc, zugferdFile);
+      embeddedFile.addCompression();
       PDComplexFileSpecification fileSpecification = createFileSpecification(embeddedFile);
 
       COSDictionary dict = fileSpecification.getCOSDictionary();
@@ -131,6 +179,7 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       Calendar now = Calendar.getInstance();
       ByteCountingInputStream countingIs = new ByteCountingInputStream(zugferdFile);
       PDEmbeddedFile embeddedFile = new PDEmbeddedFile(doc, countingIs);
+      embeddedFile.addCompression();
       embeddedFile.setSubtype(MIME_TYPE);
       embeddedFile.setSize(countingIs.getByteCount());
       embeddedFile.setCreationDate(now);
@@ -145,17 +194,17 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       documentCatalog.setNames(namesDictionary);
    }
 
-   private void setMetadata(PDDocument doc, AppendParameter appendParameter) throws IOException,
-         TransformerException, BadFieldValueException, XmpSerializationException {
+   private void setMetadata(PDDocument doc, AppendParameter appendParameter) throws IOException, TransformerException,
+         BadFieldValueException, XmpSerializationException {
       Calendar now = Calendar.getInstance();
       PDDocumentCatalog catalog = doc.getDocumentCatalog();
-      
+
       PDMetadata metadata = new PDMetadata(doc);
       catalog.setMetadata(metadata);
-      
+
       XMPMetadata xmp = XMPMetadata.createXMPMetadata();
       PDFAIdentificationSchema pdfaid = new PDFAIdentificationSchema(xmp);
-      pdfaid.setPart(Integer.valueOf(3)); 
+      pdfaid.setPart(Integer.valueOf(3));
       pdfaid.setConformance("B");
       xmp.addSchema(pdfaid);
 

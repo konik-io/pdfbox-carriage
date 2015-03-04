@@ -32,7 +32,6 @@ import org.junit.Test;
 public class PDFBoxInvoiceAppenderTest {
    
    private static final String MUSTERRECHNUNG_EINFACH_XML = "/Musterrechnung_Einfach.xml";
-   private static final String ACME_INVOICE_42_PDF = "/acme_invoice-42.pdf";
    
    PDFBoxInvoiceAppender appender;
 
@@ -42,8 +41,26 @@ public class PDFBoxInvoiceAppenderTest {
    }
 
    @Test
-   public void appendInputStream() throws Exception {
-      InputStream isPdf = getClass().getResourceAsStream(ACME_INVOICE_42_PDF);
+   public void appendInputStream_zinvoice() throws Exception {
+      InputStream isPdf = getClass().getResourceAsStream("/z-rechnung.de.pdf");
+      InputStream isXml = getClass().getResourceAsStream("/z-rechnung.de.xml");
+      FileOutputStream outputPdf = new FileOutputStream("target/z-rechnung.de_zf.pdf");      
+      AppendParameter appendParameter = new DefaultAppendParameter(isPdf, isXml,outputPdf,"1.0","BASIC");
+      appender.append(appendParameter);
+   }
+   
+   @Test
+   public void appendInputStream_acme_PDFA1() throws Exception {
+      InputStream isPdf = getClass().getResourceAsStream("/acme_invoice-42_a1b.pdf");
+      InputStream isXml = getClass().getResourceAsStream(MUSTERRECHNUNG_EINFACH_XML);
+      FileOutputStream outputPdf = new FileOutputStream("target/acme_invoice-42_a1b_zf.pdf");
+      AppendParameter appendParameter = new DefaultAppendParameter(isPdf, isXml,outputPdf,"1.0","BASIC");
+      appender.append(appendParameter);
+   }
+
+   @Test
+   public void appendInputStream_acme_PDF() throws Exception {
+      InputStream isPdf = getClass().getResourceAsStream("/acme_invoice-42.pdf");
       InputStream isXml = getClass().getResourceAsStream(MUSTERRECHNUNG_EINFACH_XML);
       FileOutputStream outputPdf = new FileOutputStream("target/acme_invoice-42_zf.pdf");
       AppendParameter appendParameter = new DefaultAppendParameter(isPdf, isXml,outputPdf,"1.0","BASIC");

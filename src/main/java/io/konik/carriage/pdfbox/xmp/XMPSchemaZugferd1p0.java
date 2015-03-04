@@ -26,6 +26,10 @@ import org.apache.xmpbox.type.TextType;
 import org.apache.xmpbox.type.Types;
 
 /**
+ * @author Vadim Bauer
+ *
+ */
+/**
  * 
  * The Class XMP ZUGFeRD Schema.
  * 
@@ -39,25 +43,25 @@ import org.apache.xmpbox.type.Types;
  *     </rdf:Description>
  *</code></pre>
  */
-@StructuredType(preferedPrefix = "zf", namespace = "urn:ferd:pdfa:CrossIndustryDocument:invoice:1p0#")    
+@StructuredType(preferedPrefix = "zf", namespace = "urn:ferd:pdfa:CrossIndustryDocument:invoice:1p0#")
 public class XMPSchemaZugferd1p0 extends XMPSchema {
 
-   /** The ZUGFeRD ConformanceLevel. */
+   /** The Constant CONFORMANCE_LEVEL. */
    @PropertyType(type = Types.Text, card = Cardinality.Simple)
    public static final String CONFORMANCE_LEVEL = "ConformanceLevel";
 
-   /** The ZUGFeRD DocumentFileName. */
+   /** The Constant DOCUMENT_FILE_NAME. */
    @PropertyType(type = Types.Text, card = Cardinality.Simple)
    public static final String DOCUMENT_FILE_NAME = "DocumentFileName";
 
-   /** The ZUGFeRD DocumentType. */
+   /** The Constant DOCUMENT_TYPE. */
    @PropertyType(type = Types.Text, card = Cardinality.Simple)
    public static final String DOCUMENT_TYPE = "DocumentType";
 
-   /** The ZUGFeRD Version. */
+   /** The Constant VERSION. */
    @PropertyType(type = Types.Text, card = Cardinality.Simple)
    public static final String VERSION = "Version";
-   
+
    /**
     * Instantiates a new XMP schema ZUGFeRD 1.0. 
     * 
@@ -70,7 +74,7 @@ public class XMPSchemaZugferd1p0 extends XMPSchema {
       setDocumentType("INVOICE");
       setDocumentFileName("ZUGFeRD-invoice.xml");
    }
-   
+
    /**
     * Instantiates a new XMP schema zugferd1p0.
     *
@@ -91,7 +95,7 @@ public class XMPSchemaZugferd1p0 extends XMPSchema {
    public TextType getConformanceLevelProperty() {
       return (TextType) getProperty(CONFORMANCE_LEVEL);
    }
-   
+
    /**
     * Gets the ZUGFeRD conformance level.
     *
@@ -158,14 +162,15 @@ public class XMPSchemaZugferd1p0 extends XMPSchema {
     */
    public TextType getDocumentTypeProperty() {
       return (TextType) getProperty(DOCUMENT_TYPE);
-      
+
    }
+
    /**
     * Gets the ZUGFeRD document type.
     * 
     * As of writing only INVOICE is supported
     *
-    * @return the ZUGFeRD document type
+    * @return the document type
     */
    public String getDocumentType() {
       TextType tt = getDocumentTypeProperty();
@@ -182,7 +187,7 @@ public class XMPSchemaZugferd1p0 extends XMPSchema {
    public void setDocumentType(String documentType) {
       addProperty(createTextType(DOCUMENT_TYPE, documentType));
    }
-   
+
    /**
     * Gets the version.
     *
@@ -191,6 +196,7 @@ public class XMPSchemaZugferd1p0 extends XMPSchema {
    public TextType getVersionProperty() {
       return (TextType) getProperty(VERSION);
    }
+
    /**
     * Gets the version.
     *
@@ -207,8 +213,8 @@ public class XMPSchemaZugferd1p0 extends XMPSchema {
     * @param version the new version
     */
    public void setVersion(String version) {
-      addProperty(createTextType(VERSION, version));
+      TextType textType = createTextType(VERSION, version);
+      addProperty(textType);
    }
 
-   
 }

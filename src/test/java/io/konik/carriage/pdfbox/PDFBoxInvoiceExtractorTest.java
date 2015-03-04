@@ -24,7 +24,6 @@ import io.konik.harness.exception.InvoiceExtractionError;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 
 import org.apache.pdfbox.io.IOUtils;
 import org.junit.Before;
