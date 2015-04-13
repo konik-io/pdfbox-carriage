@@ -28,7 +28,6 @@ import io.konik.harness.exception.InvoiceAppendError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Scanner;
 
 import javax.inject.Named;
@@ -36,9 +35,7 @@ import javax.inject.Singleton;
 import javax.xml.transform.TransformerException;
 
 import org.apache.pdfbox.cos.COSArray;
-import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSDictionary;
-import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -48,7 +45,6 @@ import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecification;
 import org.apache.pdfbox.pdmodel.common.filespecification.PDEmbeddedFile;
 import org.apache.pdfbox.pdmodel.documentinterchange.logicalstructure.PDMarkInfo;
-import org.apache.pdfbox.pdmodel.graphics.color.PDOutputIntent;
 import org.apache.xmpbox.XMPMetadata;
 import org.apache.xmpbox.schema.AdobePDFSchema;
 import org.apache.xmpbox.schema.DublinCoreSchema;
@@ -59,7 +55,6 @@ import org.apache.xmpbox.schema.XMPSchema;
 import org.apache.xmpbox.type.BadFieldValueException;
 import org.apache.xmpbox.xml.DomXmpParser;
 import org.apache.xmpbox.xml.XmpParsingException;
-import org.apache.xmpbox.xml.XmpSerializationException;
 import org.apache.xmpbox.xml.XmpSerializer;
 
 /**
@@ -98,7 +93,6 @@ public class PDFBoxInvoiceAppender implements FileAppender, PDFAConverter{
          PDDocument doc = PDDocument.load(inputPdf);
          checkisInputPdfA(doc);
          convertToPdfA3(doc);
-         setOutputIntent(doc);         
          setMetadata(doc, appendParameter);
          attachZugferdFile(doc, appendParameter.attachmentFile());
          doc.getDocument().setVersion(1.7f);
@@ -112,20 +106,7 @@ public class PDFBoxInvoiceAppender implements FileAppender, PDFAConverter{
 
    protected void convertToPdfA3(PDDocument doc) {
     if (!isConvertToPdfa3()) return; 
-      
-   }
-
-   private void setOutputIntent(PDDocument doc) throws Exception {  
-      PDDocumentCatalog documentCatalog = doc.getDocumentCatalog();
-      COSBase item = documentCatalog.getCOSDictionary().getItem(COSName.OUTPUT_INTENTS);
-      List<PDOutputIntent> outputIntents = doc.getDocumentCatalog().getOutputIntent();
-      InputStream colorProfile = getClass().getResourceAsStream("/sRGB Color Space Profile.icm");
-      PDOutputIntent oi = new PDOutputIntent(doc, colorProfile);
-      oi.setInfo("sRGB IEC61966-2.1");
-      oi.setOutputCondition("sRGB IEC61966-2.1");
-      oi.setOutputConditionIdentifier("sRGB IEC61966-2.1");
-      oi.setRegistryName("http://www.color.org");
-      doc.getDocumentCatalog().addOutputIntent(oi);
+      //not ye
    }
    
    private static boolean isConvertToPdfa3() {
@@ -165,7 +146,7 @@ public class PDFBoxInvoiceAppender implements FileAppender, PDFAConverter{
 
       COSArray cosArray = new COSArray();
       cosArray.add(fileSpecification);
-      doc.getDocumentCatalog().getCOSDictionary().setItem("AF", cosArray);
+      doc.getDocumentCatalog().getCOSObject().setItem("AF", cosArray);
    }
 
    private static PDComplexFileSpecification createFileSpecification(PDEmbeddedFile embeddedFile) {
@@ -195,7 +176,7 @@ public class PDFBoxInvoiceAppender implements FileAppender, PDFAConverter{
    }
 
    private void setMetadata(PDDocument doc, AppendParameter appendParameter) throws IOException, TransformerException,
-         BadFieldValueException, XmpSerializationException {
+         BadFieldValueException {
       Calendar now = Calendar.getInstance();
       PDDocumentCatalog catalog = doc.getDocumentCatalog();
 
