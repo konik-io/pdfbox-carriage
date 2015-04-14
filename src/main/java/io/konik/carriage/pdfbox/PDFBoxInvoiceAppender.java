@@ -116,17 +116,19 @@ public class PDFBoxInvoiceAppender implements FileAppender, PDFAConverter{
 
    private static void checkisInputPdfA(PDDocument doc) {
       PDMetadata metadata = doc.getDocumentCatalog().getMetadata();
-      try {
-         InputStream inputStream = metadata.createInputStream();
-         Scanner streamScanner = new Scanner(inputStream);
-         String found = streamScanner.findWithinHorizon("http://www.aiim.org/pdfa/ns/id", 0);
-         streamScanner.close();
-         if (found==null && !isConvertToPdfa3()  ) {
-            throw new InvoiceAppendError("The provided PDF is not of type PDF/A. Contact support for a PDF to PDF/A conversation");
-         }
-      } catch (IOException e) {
-         throw new InvoiceAppendError("Could not read PDF Metadata",e);
-      }
+      if (metadata != null) {
+		  try {
+			  InputStream inputStream = metadata.createInputStream();
+			  Scanner streamScanner = new Scanner(inputStream);
+			  String found = streamScanner.findWithinHorizon("http://www.aiim.org/pdfa/ns/id", 0);
+			  streamScanner.close();
+			  if (found==null && !isConvertToPdfa3()  ) {
+				  throw new InvoiceAppendError("The provided PDF is not of type PDF/A. Contact support for a PDF to PDF/A conversation");
+			  }
+		  } catch (IOException e) {
+			  throw new InvoiceAppendError("Could not read PDF Metadata",e);
+		  }
+	  }
    }
 
    private static void attachZugferdFile(PDDocument doc, InputStream zugferdFile) throws IOException {
