@@ -40,7 +40,7 @@ import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecifica
 @Singleton
 public class PDFBoxInvoiceExtractor implements FileExtractor {
 
-   static final String NO_FILE = "Provided PDF does not contain embedded files.";
+   
    static final String NO_ZF_FILE = "The PDF does not contain an attached file named ZUGFeRD-invoice.xml. Error in: ";
    static final String ZF_FILE_NAME = "ZUGFeRD-invoice.xml";
 
@@ -80,7 +80,7 @@ public class PDFBoxInvoiceExtractor implements FileExtractor {
 
    private static final PDEmbeddedFilesNameTreeNode listEmbeddedFiles(PDDocumentNameDictionary names) {
       PDEmbeddedFilesNameTreeNode embeddedFiles = names.getEmbeddedFiles();
-      if (embeddedFiles == null) { throw new InvoiceExtractionError(NO_FILE); }
+      if (embeddedFiles == null) { throw new InvoiceExtractionError(NO_ZF_FILE); }
       return embeddedFiles;
    }
    

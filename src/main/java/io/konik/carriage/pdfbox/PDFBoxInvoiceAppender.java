@@ -18,7 +18,7 @@
 package io.konik.carriage.pdfbox;
 
 import static java.util.Collections.singletonMap;
-import io.konik.carriage.pdfbox.converter.PDFAConverter;
+import io.konik.carriage.pdfbox.exception.NotPDFAException;
 import io.konik.carriage.pdfbox.xmp.XMPSchemaZugferd1p0;
 import io.konik.carriage.utils.ByteCountingInputStream;
 import io.konik.harness.AppendParameter;
@@ -62,7 +62,7 @@ import org.apache.xmpbox.xml.XmpSerializer;
  */
 @Named
 @Singleton
-public class PDFBoxInvoiceAppender implements FileAppender, PDFAConverter{
+public class PDFBoxInvoiceAppender implements FileAppender {
 
    private static final String PRODUCER = "Konik PDFBox-Carriage";
    private static final String MIME_TYPE = "text/xml";
@@ -91,7 +91,7 @@ public class PDFBoxInvoiceAppender implements FileAppender, PDFAConverter{
       InputStream inputPdf = appendParameter.inputPdf();
       try {
          PDDocument doc = PDDocument.load(inputPdf);
-         checkisInputPdfA(doc);
+         checkisPdfA(doc);
          convertToPdfA3(doc);
          setMetadata(doc, appendParameter);
          attachZugferdFile(doc, appendParameter.attachmentFile());
@@ -104,31 +104,23 @@ public class PDFBoxInvoiceAppender implements FileAppender, PDFAConverter{
 
    }
 
-   protected void convertToPdfA3(PDDocument doc) {
-    if (!isConvertToPdfa3()) return; 
-      //not ye
-   }
-   
-   private static boolean isConvertToPdfa3() {
-      String convert = System.getProperty("io.konik.carriage.convertToPdfA");
-      return Boolean.parseBoolean(convert);
+   protected void convertToPdfA3(PDDocument document) throws Exception {    
+     
    }
 
-   private static void checkisInputPdfA(PDDocument doc) {
+   protected void checkisPdfA(PDDocument doc) {
       PDMetadata metadata = doc.getDocumentCatalog().getMetadata();
       if (metadata != null) {
-		  try {
-			  InputStream inputStream = metadata.createInputStream();
-			  Scanner streamScanner = new Scanner(inputStream);
-			  String found = streamScanner.findWithinHorizon("http://www.aiim.org/pdfa/ns/id", 0);
-			  streamScanner.close();
-			  if (found==null && !isConvertToPdfa3()  ) {
-				  throw new InvoiceAppendError("The provided PDF is not of type PDF/A. Contact support for a PDF to PDF/A conversation");
-			  }
-		  } catch (IOException e) {
-			  throw new InvoiceAppendError("Could not read PDF Metadata",e);
-		  }
-	  }
+         try {
+            InputStream inputStream = metadata.createInputStream();
+            Scanner streamScanner = new Scanner(inputStream);
+            String found = streamScanner.findWithinHorizon("http://www.aiim.org/pdfa/ns/id", 0);
+            streamScanner.close();
+            if (found == null) { throw new NotPDFAException();}                  
+         } catch (IOException e) {
+            throw new InvoiceAppendError("Could not read PDF Metadata", e);
+         }
+      }
    }
 
    private static void attachZugferdFile(PDDocument doc, InputStream zugferdFile) throws IOException {
@@ -138,7 +130,7 @@ public class PDFBoxInvoiceAppender implements FileAppender, PDFAConverter{
       embeddedFile.addCompression();
       PDComplexFileSpecification fileSpecification = createFileSpecification(embeddedFile);
 
-      COSDictionary dict = fileSpecification.getCOSDictionary();
+      COSDictionary dict = fileSpecification.getCOSObject();
       dict.setName("AFRelationship", "Alternative");
       dict.setString("UF", ZF_FILE_NAME);
 
@@ -223,6 +215,9 @@ public class PDFBoxInvoiceAppender implements FileAppender, PDFAConverter{
    }
 
    private static String getAuthor() {
+      if (System.getProperty("io.konik.carriage.pdf.author") != null) {
+         return System.getProperty("io.konik.carriage.pdf.author");
+      }
       return System.getProperty("user.name");
    }
 

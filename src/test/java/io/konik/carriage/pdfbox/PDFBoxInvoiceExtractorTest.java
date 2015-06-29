@@ -32,7 +32,7 @@ import org.junit.Test;
 @SuppressWarnings("javadoc")
 public class PDFBoxInvoiceExtractorTest {
 
-   private static final String PDF_WITH_RANDOM_ATTACHMENT = "/random_attachment.pdf";
+   private static final String PDFA3_FILE_NO_ATTACHMENT = "/PDFA3NoAttachment.pdf";
    private static final String ACME_INVOICE_42 = "/acme_invoice-42.pdf";
    private static final String PDF_INVOICE_LOCATION = "/Musterrechnung_Einfach.pdf";
   
@@ -66,7 +66,7 @@ public class PDFBoxInvoiceExtractorTest {
    @Test
    public void extract_noZfFile() {
       try {
-         InputStream pdfStream = getClass().getResourceAsStream(PDF_WITH_RANDOM_ATTACHMENT);
+         InputStream pdfStream = getClass().getResourceAsStream(PDFA3_FILE_NO_ATTACHMENT);
          invoiceExtractor.extract(pdfStream);
       }
       catch(InvoiceExtractionError e) {
