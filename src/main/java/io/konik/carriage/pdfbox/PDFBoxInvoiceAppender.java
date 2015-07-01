@@ -138,7 +138,7 @@ public class PDFBoxInvoiceAppender implements FileAppender, PDFAConverter{
       embeddedFile.addCompression();
       PDComplexFileSpecification fileSpecification = createFileSpecification(embeddedFile);
 
-      COSDictionary dict = fileSpecification.getCOSDictionary();
+      COSDictionary dict = fileSpecification.getCOSObject();
       dict.setName("AFRelationship", "Alternative");
       dict.setString("UF", ZF_FILE_NAME);
 
