@@ -70,7 +70,7 @@ public class PDFBoxInvoiceExtractorTest {
          invoiceExtractor.extract(pdfStream);
       }
       catch(InvoiceExtractionError e) {
-         assertThat(e.getMessage()).startsWith(PDFBoxInvoiceExtractor.NO_ZF_FILE);
+         assertThat(e.getMessage()).startsWith(PDFBoxInvoiceExtractor.NO_EMBEDDED_FILES);
       }
    }
 
