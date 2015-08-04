@@ -99,7 +99,7 @@ public class PDFBoxInvoiceAppender implements FileAppender {
          doc.save(appendParameter.resultingPdf());
          doc.close();
       } catch (Exception e) {
-         throw new InvoiceAppendError("Error appending Invoice the input Strem is: " + inputPdf, e);
+         throw new InvoiceAppendError("Error appending Invoice the input stream is: " + inputPdf, e);
       }
 
    }
