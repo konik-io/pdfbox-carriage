@@ -1,0 +1,3 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit"
+"io.konik.carriage.pdfbox.benchmark.InvoiceAppenderBenchmark.append","thrpt",1,20,190.59844319213602,5.729243499958158,"ops/s"
+"io.konik.carriage.pdfbox.benchmark.InvoiceAppenderBenchmark.append_with4Threads","thrpt",4,20,265.71449265723356,28.5704469600408,"ops/s"

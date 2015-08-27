@@ -146,6 +146,7 @@ public class PDFBoxInvoiceAppender implements FileAppender {
    private static PDComplexFileSpecification createFileSpecification(PDEmbeddedFile embeddedFile) {
       PDComplexFileSpecification fileSpecification = new PDComplexFileSpecification();
       fileSpecification.setFile(ZF_FILE_NAME);
+      fileSpecification.setFileDescription(ZF_FILE_NAME);
       fileSpecification.setEmbeddedFile(embeddedFile);
       return fileSpecification;
    }
