@@ -18,6 +18,9 @@
 package io.konik.carriage.pdfbox;
 
 import static java.util.Collections.singletonMap;
+import static org.apache.pdfbox.cos.COSName.EF;
+import static org.apache.pdfbox.cos.COSName.F;
+import static org.apache.pdfbox.cos.COSName.UF;
 import io.konik.carriage.pdfbox.exception.NotPDFAException;
 import io.konik.carriage.pdfbox.xmp.XMPSchemaZugferd1p0;
 import io.konik.carriage.utils.ByteCountingInputStream;
@@ -36,7 +39,10 @@ import javax.inject.Singleton;
 import javax.xml.transform.TransformerException;
 
 import org.apache.pdfbox.cos.COSArray;
+import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSDictionary;
+import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.cos.COSStream;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -127,8 +133,7 @@ public class PDFBoxInvoiceAppender implements FileAppender {
    private static void attachZugferdFile(PDDocument doc, InputStream zugferdFile) throws IOException {
       PDEmbeddedFilesNameTreeNode fileNameTreeNode = new PDEmbeddedFilesNameTreeNode();
 
-      PDEmbeddedFile embeddedFile = createEmbeddedFile(doc, zugferdFile);
-      embeddedFile.addCompression();
+      PDEmbeddedFile embeddedFile = createEmbeddedFile(doc, zugferdFile);      
       PDComplexFileSpecification fileSpecification = createFileSpecification(embeddedFile);
 
       COSDictionary dict = fileSpecification.getCOSObject();
@@ -149,18 +154,21 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       fileSpecification.setFile(ZF_FILE_NAME);
       fileSpecification.setFileDescription("ZUGFeRD Invoice created with Konik Library");
       fileSpecification.setEmbeddedFile(embeddedFile);
+      
+      COSDictionary efDictionary = (COSDictionary) fileSpecification.getCOSObject().getDictionaryObject(EF);
+      efDictionary.setItem(UF, embeddedFile);            
       return fileSpecification;
    }
 
    private static PDEmbeddedFile createEmbeddedFile(PDDocument doc, InputStream zugferdFile) throws IOException {
       Calendar now = Calendar.getInstance();
       ByteCountingInputStream countingIs = new ByteCountingInputStream(zugferdFile);
-      PDEmbeddedFile embeddedFile = new PDEmbeddedFile(doc, countingIs);
-      embeddedFile.addCompression();
+      PDEmbeddedFile embeddedFile = new PDEmbeddedFile(doc, countingIs);      
       embeddedFile.setSubtype(MIME_TYPE);
       embeddedFile.setSize(countingIs.getByteCount());
       embeddedFile.setCreationDate(now);
       embeddedFile.setModDate(now);
+      embeddedFile.addCompression();
       return embeddedFile;
    }
 

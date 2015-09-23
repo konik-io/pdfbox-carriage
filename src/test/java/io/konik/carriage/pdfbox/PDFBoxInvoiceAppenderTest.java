@@ -54,7 +54,7 @@ public class PDFBoxInvoiceAppenderTest {
       InputStream isPdf = getClass().getResourceAsStream("/acme_invoice-42_a1b.pdf");
       InputStream isXml = getClass().getResourceAsStream(MUSTERRECHNUNG_EINFACH_XML);
       FileOutputStream outputPdf = new FileOutputStream("target/acme_invoice-42_a1b_zf.pdf");
-      AppendParameter appendParameter = new DefaultAppendParameter(isPdf, isXml,outputPdf,"1.0","BASIC");
+      AppendParameter appendParameter = new DefaultAppendParameter(isPdf, isXml,outputPdf,"1.0","COMFORT");
       appender.append(appendParameter);
    }
 
@@ -63,8 +63,18 @@ public class PDFBoxInvoiceAppenderTest {
       InputStream isPdf = getClass().getResourceAsStream("/acme_invoice-42.pdf");
       InputStream isXml = getClass().getResourceAsStream(MUSTERRECHNUNG_EINFACH_XML);
       FileOutputStream outputPdf = new FileOutputStream("target/acme_invoice-42_zf.pdf");
-      AppendParameter appendParameter = new DefaultAppendParameter(isPdf, isXml,outputPdf,"1.0","BASIC");
+      AppendParameter appendParameter = new DefaultAppendParameter(isPdf, isXml,outputPdf,"1.0","COMFORT");
       appender.append(appendParameter);
    }
+   
+   @Test
+   public void appendInputStream_zrechnung_bsp2_PDF() throws Exception {
+      InputStream isPdf = getClass().getResourceAsStream("/zrechnung-Bsp2.pdf");
+      InputStream isXml = getClass().getResourceAsStream("/zrechnung-Bsp2.xml");
+      FileOutputStream outputPdf = new FileOutputStream("target/zrechnung-Bsp2_zf.pdf");
+      AppendParameter appendParameter = new DefaultAppendParameter(isPdf, isXml,outputPdf,"1.0","EXTENDED");
+      appender.append(appendParameter);
+   }
+
 
 }
