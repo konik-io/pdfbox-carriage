@@ -91,6 +91,7 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       InputStream inputPdf = appendParameter.inputPdf();
       try {
          PDDocument doc = PDDocument.load(inputPdf);
+         doc.setAllSecurityToBeRemoved(true);
          checkisPdfA(doc);
          convertToPdfA3(doc);
          setMetadata(doc, appendParameter);
