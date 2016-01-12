@@ -64,6 +64,7 @@ import org.apache.xmpbox.xml.XmpSerializer;
 @Singleton
 public class PDFBoxInvoiceAppender implements FileAppender {
 
+   private static final int PRIORITY = 50;
    private static final String PRODUCER = "Konik PDFBox-Carriage";
    private static final String MIME_TYPE = "text/xml";
    private static final String ZF_FILE_NAME = "ZUGFeRD-invoice.xml";
@@ -102,7 +103,11 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       } catch (Exception e) {
          throw new InvoiceAppendError("Error appending Invoice the input stream is: " + inputPdf, e);
       }
+   }
 
+   @Override
+   public int getPriority() {
+      return PRIORITY;
    }
 
    protected void convertToPdfA3(PDDocument document) throws Exception {    
