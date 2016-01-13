@@ -27,6 +27,7 @@ import io.konik.harness.exception.InvoiceAppendError;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Scanner;
 
@@ -217,7 +218,11 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       zf.setVersion(appendParameter.zugferdVersion());
       xmp.addSchema(zf);
 
-      new XmpSerializer().serialize(xmp, metadata.createOutputStream(), true);
+      OutputStream outputStreamMeta = metadata.createOutputStream();
+
+      new XmpSerializer().serialize(xmp, outputStreamMeta, true);
+
+      outputStreamMeta.close();
    }
 
    private static String getAuthor() {
