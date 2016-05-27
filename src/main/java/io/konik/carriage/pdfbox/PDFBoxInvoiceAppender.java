@@ -154,6 +154,7 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       PDComplexFileSpecification fileSpecification = new PDComplexFileSpecification();
       fileSpecification.setFile(ZF_FILE_NAME);
       fileSpecification.setEmbeddedFile(embeddedFile);
+      fileSpecification.setFileDescription("ZUGFeRD Invoice created with Konik Library");
       return fileSpecification;
    }
 
