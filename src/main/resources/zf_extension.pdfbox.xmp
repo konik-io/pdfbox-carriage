@@ -38,6 +38,7 @@
                         </rdf:li>
                      </rdf:Seq>
                   </pdfaSchema:property>
+                  <pdfaSchema:valueType><rdf:Seq></rdf:Seq></pdfaSchema:valueType>
                </rdf:li>
             </rdf:Bag>
          </pdfaExtension:schemas>

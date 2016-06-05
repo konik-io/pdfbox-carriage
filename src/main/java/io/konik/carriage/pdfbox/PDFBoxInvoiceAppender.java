@@ -66,7 +66,7 @@ import org.apache.xmpbox.xml.XmpSerializer;
 public class PDFBoxInvoiceAppender implements FileAppender {
 
    private static final int PRIORITY = 50;
-   private static final String PRODUCER = "Konik PDFBox-Carriage";
+   private static final String PRODUCER = "Konik Library with PDFBox-Carriage";
    private static final String MIME_TYPE = "text/xml";
    private static final String ZF_FILE_NAME = "ZUGFeRD-invoice.xml";
    private final XMPMetadata zfDefaultXmp;
@@ -152,7 +152,7 @@ public class PDFBoxInvoiceAppender implements FileAppender {
 
    private static PDComplexFileSpecification createFileSpecification(PDEmbeddedFile embeddedFile) {
       PDComplexFileSpecification fileSpecification = new PDComplexFileSpecification();
-      fileSpecification.setFile(ZF_FILE_NAME);
+      fileSpecification.setFile(ZF_FILE_NAME);            
       fileSpecification.setEmbeddedFile(embeddedFile);
       fileSpecification.setFileDescription("ZUGFeRD Invoice created with Konik Library");
       return fileSpecification;

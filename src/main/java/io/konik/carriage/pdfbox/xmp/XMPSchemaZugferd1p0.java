@@ -18,6 +18,7 @@
 package io.konik.carriage.pdfbox.xmp;
 
 import org.apache.xmpbox.XMPMetadata;
+import org.apache.xmpbox.schema.PDFAExtensionSchema;
 import org.apache.xmpbox.schema.XMPSchema;
 import org.apache.xmpbox.type.Cardinality;
 import org.apache.xmpbox.type.PropertyType;
@@ -44,7 +45,7 @@ import org.apache.xmpbox.type.Types;
  *</code></pre>
  */
 @StructuredType(preferedPrefix = "zf", namespace = "urn:ferd:pdfa:CrossIndustryDocument:invoice:1p0#")
-public class XMPSchemaZugferd1p0 extends XMPSchema {
+public class XMPSchemaZugferd1p0 extends PDFAExtensionSchema {
 
    /** The Constant CONFORMANCE_LEVEL. */
    @PropertyType(type = Types.Text, card = Cardinality.Simple)
@@ -61,7 +62,10 @@ public class XMPSchemaZugferd1p0 extends XMPSchema {
    /** The Constant VERSION. */
    @PropertyType(type = Types.Text, card = Cardinality.Simple)
    public static final String VERSION = "Version";
-
+   
+   @PropertyType(type = Types.PDFAType, card = Cardinality.Seq)
+   public static final String VALUE_TYPE = "valueType";
+   
    /**
     * Instantiates a new XMP schema ZUGFeRD 1.0. 
     * 
