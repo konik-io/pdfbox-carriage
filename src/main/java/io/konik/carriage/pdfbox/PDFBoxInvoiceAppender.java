@@ -18,6 +18,8 @@
 package io.konik.carriage.pdfbox;
 
 import static java.util.Collections.singletonMap;
+
+import io.konik.Configuration;
 import io.konik.carriage.pdfbox.exception.NotPDFAException;
 import io.konik.carriage.pdfbox.xmp.XMPSchemaZugferd1p0;
 import io.konik.carriage.utils.ByteCountingInputStream;
@@ -69,6 +71,8 @@ public class PDFBoxInvoiceAppender implements FileAppender {
    private static final String PRODUCER = "Konik Library with PDFBox-Carriage";
    private static final String MIME_TYPE = "text/xml";
    private static final String ZF_FILE_NAME = "ZUGFeRD-invoice.xml";
+   private static final String USER_NAME_KEY = "user.name";
+   private static final String PDF_AUTHOR_KEY = "io.konik.carriage.pdf.author";
    private final XMPMetadata zfDefaultXmp;
 
    /**
@@ -227,10 +231,16 @@ public class PDFBoxInvoiceAppender implements FileAppender {
    }
 
    private static String getAuthor() {
-      if (System.getProperty("io.konik.carriage.pdf.author") != null) {
-         return System.getProperty("io.konik.carriage.pdf.author");
+      String defaultAuthor = getDefaultAuthor();
+      return Configuration.INSTANCE.getProperty(PDF_AUTHOR_KEY, defaultAuthor);
+
+   }
+
+   private static String getDefaultAuthor() {
+      if (System.getProperty(PDF_AUTHOR_KEY) != null) {
+         return System.getProperty(PDF_AUTHOR_KEY);
       }
-      return System.getProperty("user.name");
+      return System.getProperty(USER_NAME_KEY);
    }
 
 }
