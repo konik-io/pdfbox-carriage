@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with the Konik library. If not, see <http://www.gnu.org/licenses/>.
  */
-package io.konik;
+package io.konik.carriage.pdfbox;
 
 import static java.util.logging.Level.CONFIG;
 

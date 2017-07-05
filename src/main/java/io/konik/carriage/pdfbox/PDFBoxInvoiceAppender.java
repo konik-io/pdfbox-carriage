@@ -19,14 +19,6 @@ package io.konik.carriage.pdfbox;
 
 import static java.util.Collections.singletonMap;
 
-import io.konik.Configuration;
-import io.konik.carriage.pdfbox.exception.NotPDFAException;
-import io.konik.carriage.pdfbox.xmp.XMPSchemaZugferd1p0;
-import io.konik.carriage.utils.ByteCountingInputStream;
-import io.konik.harness.AppendParameter;
-import io.konik.harness.FileAppender;
-import io.konik.harness.exception.InvoiceAppendError;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,6 +51,13 @@ import org.apache.xmpbox.type.BadFieldValueException;
 import org.apache.xmpbox.xml.DomXmpParser;
 import org.apache.xmpbox.xml.XmpParsingException;
 import org.apache.xmpbox.xml.XmpSerializer;
+
+import io.konik.carriage.pdfbox.exception.NotPDFAException;
+import io.konik.carriage.pdfbox.xmp.XMPSchemaZugferd1p0;
+import io.konik.carriage.utils.ByteCountingInputStream;
+import io.konik.harness.AppendParameter;
+import io.konik.harness.FileAppender;
+import io.konik.harness.exception.InvoiceAppendError;
 
 /**
  * ZUGFeRD PDFBox Invoice Appender.
@@ -95,28 +94,25 @@ public class PDFBoxInvoiceAppender implements FileAppender {
    @Override
    public void append(AppendParameter appendParameter) {
       InputStream inputPdf = appendParameter.inputPdf();
+      PDDocument doc = null;
       try {
-         PDDocument doc = PDDocument.load(inputPdf);
+         doc = PDDocument.load(inputPdf);
          doc.setAllSecurityToBeRemoved(true);
          checkisPdfA(doc);
          convertToPdfA3(doc);
          setMetadata(doc, appendParameter);
          attachZugferdFile(doc, appendParameter.attachmentFile());
          doc.getDocument().setVersion(1.7f);
-         doc.save(appendParameter.resultingPdf());
-         doc.close();
+         doc.save(appendParameter.resultingPdf());         
       } catch (Exception e) {
          throw new InvoiceAppendError("Error appending Invoice the input stream is: " + inputPdf, e);
+      }finally {
+         if (doc != null) try {
+            doc.close();
+         } catch (IOException e) {
+            throw new InvoiceAppendError("Could not close PDF Document", e);
+         }
       }
-   }
-
-   @Override
-   public int getPriority() {
-      return PRIORITY;
-   }
-
-   protected void convertToPdfA3(PDDocument document) throws Exception {    
-     
    }
 
    protected void checkisPdfA(PDDocument doc) {
@@ -127,62 +123,20 @@ public class PDFBoxInvoiceAppender implements FileAppender {
             Scanner streamScanner = new Scanner(inputStream);
             String found = streamScanner.findWithinHorizon("http://www.aiim.org/pdfa/ns/id", 0);
             streamScanner.close();
-            if (found == null) { throw new NotPDFAException();}                  
+            if (found == null) { throw new NotPDFAException(); }
          } catch (IOException e) {
             throw new InvoiceAppendError("Could not read PDF Metadata", e);
          }
       }
    }
 
-   private static void attachZugferdFile(PDDocument doc, InputStream zugferdFile) throws IOException {
-      PDEmbeddedFilesNameTreeNode fileNameTreeNode = new PDEmbeddedFilesNameTreeNode();
+   protected void convertToPdfA3(PDDocument document) throws Exception {
 
-      PDEmbeddedFile embeddedFile = createEmbeddedFile(doc, zugferdFile);
-      embeddedFile.addCompression();
-      PDComplexFileSpecification fileSpecification = createFileSpecification(embeddedFile);
-
-      COSDictionary dict = fileSpecification.getCOSObject();
-      dict.setName("AFRelationship", "Alternative");
-      dict.setString("UF", ZF_FILE_NAME);
-
-      fileNameTreeNode.setNames(singletonMap(ZF_FILE_NAME, fileSpecification));
-
-      setNamesDictionary(doc, fileNameTreeNode);
-
-      COSArray cosArray = new COSArray();
-      cosArray.add(fileSpecification);
-      doc.getDocumentCatalog().getCOSObject().setItem("AF", cosArray);
-   }
-
-   private static PDComplexFileSpecification createFileSpecification(PDEmbeddedFile embeddedFile) {
-      PDComplexFileSpecification fileSpecification = new PDComplexFileSpecification();
-      fileSpecification.setFile(ZF_FILE_NAME);            
-      fileSpecification.setEmbeddedFile(embeddedFile);
-      fileSpecification.setFileDescription("ZUGFeRD Invoice created with Konik Library");
-      return fileSpecification;
-   }
-
-   private static PDEmbeddedFile createEmbeddedFile(PDDocument doc, InputStream zugferdFile) throws IOException {
-      Calendar now = Calendar.getInstance();
-      ByteCountingInputStream countingIs = new ByteCountingInputStream(zugferdFile);
-      PDEmbeddedFile embeddedFile = new PDEmbeddedFile(doc, countingIs);
-      embeddedFile.addCompression();
-      embeddedFile.setSubtype(MIME_TYPE);
-      embeddedFile.setSize(countingIs.getByteCount());
-      embeddedFile.setCreationDate(now);
-      embeddedFile.setModDate(now);
-      return embeddedFile;
-   }
-
-   private static void setNamesDictionary(PDDocument doc, PDEmbeddedFilesNameTreeNode fileNameTreeNode) {
-      PDDocumentCatalog documentCatalog = doc.getDocumentCatalog();
-      PDDocumentNameDictionary namesDictionary = new PDDocumentNameDictionary(documentCatalog);
-      namesDictionary.setEmbeddedFiles(fileNameTreeNode);
-      documentCatalog.setNames(namesDictionary);
    }
 
    private void setMetadata(PDDocument doc, AppendParameter appendParameter) throws IOException, TransformerException,
          BadFieldValueException {
+      
       Calendar now = Calendar.getInstance();
       PDDocumentCatalog catalog = doc.getDocumentCatalog();
 
@@ -230,6 +184,53 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       outputStreamMeta.close();
    }
 
+   private static void attachZugferdFile(PDDocument doc, InputStream zugferdFile) throws IOException {
+      PDEmbeddedFilesNameTreeNode fileNameTreeNode = new PDEmbeddedFilesNameTreeNode();
+
+      PDEmbeddedFile embeddedFile = createEmbeddedFile(doc, zugferdFile);
+      embeddedFile.addCompression();
+      PDComplexFileSpecification fileSpecification = createFileSpecification(embeddedFile);
+
+      COSDictionary dict = fileSpecification.getCOSObject();
+      dict.setName("AFRelationship", "Alternative");
+      dict.setString("UF", ZF_FILE_NAME);
+
+      fileNameTreeNode.setNames(singletonMap(ZF_FILE_NAME, fileSpecification));
+
+      setNamesDictionary(doc, fileNameTreeNode);
+
+      COSArray cosArray = new COSArray();
+      cosArray.add(fileSpecification);
+      doc.getDocumentCatalog().getCOSObject().setItem("AF", cosArray);
+   }
+
+   private static PDComplexFileSpecification createFileSpecification(PDEmbeddedFile embeddedFile) {
+      PDComplexFileSpecification fileSpecification = new PDComplexFileSpecification();
+      fileSpecification.setFile(ZF_FILE_NAME);
+      fileSpecification.setEmbeddedFile(embeddedFile);
+      fileSpecification.setFileDescription("ZUGFeRD Invoice created with Konik Library");
+      return fileSpecification;
+   }
+
+   private static PDEmbeddedFile createEmbeddedFile(PDDocument doc, InputStream zugferdFile) throws IOException {
+      Calendar now = Calendar.getInstance();
+      ByteCountingInputStream countingIs = new ByteCountingInputStream(zugferdFile);
+      PDEmbeddedFile embeddedFile = new PDEmbeddedFile(doc, countingIs);
+      embeddedFile.addCompression();
+      embeddedFile.setSubtype(MIME_TYPE);
+      embeddedFile.setSize(countingIs.getByteCount());
+      embeddedFile.setCreationDate(now);
+      embeddedFile.setModDate(now);
+      return embeddedFile;
+   }
+
+   private static void setNamesDictionary(PDDocument doc, PDEmbeddedFilesNameTreeNode fileNameTreeNode) {
+      PDDocumentCatalog documentCatalog = doc.getDocumentCatalog();
+      PDDocumentNameDictionary namesDictionary = new PDDocumentNameDictionary(documentCatalog);
+      namesDictionary.setEmbeddedFiles(fileNameTreeNode);
+      documentCatalog.setNames(namesDictionary);
+   }
+
    private static String getAuthor() {
       String defaultAuthor = getDefaultAuthor();
       return Configuration.INSTANCE.getProperty(PDF_AUTHOR_KEY, defaultAuthor);
@@ -237,10 +238,13 @@ public class PDFBoxInvoiceAppender implements FileAppender {
    }
 
    private static String getDefaultAuthor() {
-      if (System.getProperty(PDF_AUTHOR_KEY) != null) {
-         return System.getProperty(PDF_AUTHOR_KEY);
-      }
+      if (System.getProperty(PDF_AUTHOR_KEY) != null) { return System.getProperty(PDF_AUTHOR_KEY); }
       return System.getProperty(USER_NAME_KEY);
+   }
+
+   @Override
+   public int getPriority() {
+      return PRIORITY;
    }
 
 }
