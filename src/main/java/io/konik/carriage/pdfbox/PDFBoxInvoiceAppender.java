@@ -29,6 +29,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.xml.transform.TransformerException;
 
+import io.konik.carriage.utils.ProducerAppendParameter;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -67,7 +68,7 @@ import io.konik.harness.exception.InvoiceAppendError;
 public class PDFBoxInvoiceAppender implements FileAppender {
 
    private static final int PRIORITY = 50;
-   private static final String PRODUCER = "Konik Library with PDFBox-Carriage";
+   private static final String DEFAULT_PRODUCER = "Konik Library with PDFBox-Carriage";
    private static final String MIME_TYPE = "text/xml";
    private static final String ZF_FILE_NAME = "ZUGFeRD-invoice.xml";
    private static final String USER_NAME_KEY = "user.name";
@@ -136,7 +137,11 @@ public class PDFBoxInvoiceAppender implements FileAppender {
 
    private void setMetadata(PDDocument doc, AppendParameter appendParameter) throws IOException, TransformerException,
          BadFieldValueException {
-      
+
+      String producer = DEFAULT_PRODUCER;
+      if (appendParameter instanceof ProducerAppendParameter){
+         producer = ((ProducerAppendParameter)appendParameter).getProducer();
+      }
       Calendar now = Calendar.getInstance();
       PDDocumentCatalog catalog = doc.getDocumentCatalog();
 
@@ -153,18 +158,18 @@ public class PDFBoxInvoiceAppender implements FileAppender {
       xmp.addSchema(dublicCore);
 
       XMPBasicSchema basicSchema = new XMPBasicSchema(xmp);
-      basicSchema.setCreatorTool(PRODUCER);
+      basicSchema.setCreatorTool(producer);
       basicSchema.setCreateDate(now);
       xmp.addSchema(basicSchema);
 
       PDDocumentInformation pdi = doc.getDocumentInformation();
       pdi.setModificationDate(now);
-      pdi.setProducer(PRODUCER);
+      pdi.setProducer(producer);
       pdi.setAuthor(getAuthor());
       doc.setDocumentInformation(pdi);
 
       AdobePDFSchema pdf = new AdobePDFSchema(xmp);
-      pdf.setProducer(PRODUCER);
+      pdf.setProducer(producer);
       xmp.addSchema(pdf);
 
       PDMarkInfo markinfo = new PDMarkInfo();
